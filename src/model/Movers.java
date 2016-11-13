@@ -1,10 +1,13 @@
 package model;
 
+import java.awt.Color;
+
 public class Movers {
 	 int xpos;
 	 int ypos;
 	 int xvel;
      int yvel;
+     Color color;
 
 	Movers(int xpos, int ypos, int xvel, int yvel){
 		this.xpos = xpos;
@@ -43,6 +46,14 @@ public class Movers {
 
 	public void setYvel(int yvel) {
 		this.yvel = yvel;
+	}
+	
+	public void setColor(Color color) {
+		this.color = color;
+	}
+	
+	public Color getColor() {
+		return this.color;
 	}
 
 

@@ -16,7 +16,7 @@ public class Main {
         JFrame frame = new JFrame("Crab Game");
         Controller control = new Controller();
         frame.add(control);
-        frame.setSize(control.getGame().FRAMEWIDTH, control.getGame().FRAMEHEIGHT);
+        frame.setSize(control.FRAMEWIDTH, control.FRAMEHEIGHT);
         frame.getContentPane().setBackground(Color.BLUE);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);

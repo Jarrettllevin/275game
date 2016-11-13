@@ -4,11 +4,13 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.Serializable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -16,21 +18,26 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JFrame;
 
-public class Game {
+public class Game implements Serializable{
 //	private static final long serialVersionUID = 1L;
 	Player player;
 	Board board;
 	PossibleHazards ph;
+	Color color;
 	public static int FRAMEHEIGHT = 400;
 	public static int FRAMEWIDTH = 400;
-	public Game(){
+	public Game(Dimension screenSize){
 		System.out.println("Generating game");
 		player = new Player(30, 40, 10, 10, 200, 1, 1, 500, Tool.TRASH, State.NEUTRAL);
+		player.setColor(color.MAGENTA);
 		board =  new Board();
 		ph = new PossibleHazards(75);
-        ph.generateHazards();
+        ph.generateHazards(screenSize);
 	}
-	
+	public void stop(){
+		player = null;
+		ph = null;
+	}
 	public Player getPlayer(){
 		return this.player;
 	}

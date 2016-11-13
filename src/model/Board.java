@@ -38,12 +38,6 @@ public class Board{
 			}
 			System.out.println();
 		}
-//		arr[BOARDWIDTH/2][0]=1;
-//		arr[BOARDWIDTH/2+1][0]=1;
-//		arr[BOARDWIDTH/2-1][0]=1;
-//		arr[BOARDWIDTH/2][20]=-1;
-//		arr[BOARDWIDTH/2+1][20]=-1;
-//		arr[BOARDWIDTH/2-1][20]=-1;
 	}
 	/** This method returns a part of the array given a coordinate
 	 * @param x  the x coordinate of the specified tile

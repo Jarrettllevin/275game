@@ -1,5 +1,5 @@
 package model;
 
 public enum State {
-	NEUTRAL, INVINCIBLE, SPEEDUP
+	NEUTRAL, INVINCIBLE, SPEEDUP, JUSTHIT
 }

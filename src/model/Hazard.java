@@ -7,7 +7,7 @@ public class Hazard extends Movers{
   int spawntime;
   HazardType type;
   MovementType movementType;
-  Color color;
+  
 
   
   
@@ -119,9 +119,7 @@ public PowerupType getPowerupType() {
 }
 
 
-public Color getColor() {
-	return this.color;
-}
+
 
 }
 

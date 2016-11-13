@@ -12,9 +12,12 @@ import javax.swing.KeyStroke;
 
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -32,13 +35,19 @@ public class Controller extends JPanel{
 	Game game;
 	int count=0;
 	int powerupCount = 0;
+	Color color;
+	Dimension SCREENSIZE = Toolkit.getDefaultToolkit().getScreenSize();
+	public int FRAMEHEIGHT = (int) SCREENSIZE.getHeight();
+	public int FRAMEWIDTH = (int) SCREENSIZE.getWidth();
 	public Controller(){
-		game = new Game();
+		game = new Game(SCREENSIZE);
 		count = 0;
 		bindKeyWith("y.up", KeyStroke.getKeyStroke("UP"), new VerticalAction(-(this.game.getPlayer().getYvel())));
         bindKeyWith("y.down", KeyStroke.getKeyStroke("DOWN"), new VerticalAction(this.game.getPlayer().getYvel()));
         bindKeyWith("x.left", KeyStroke.getKeyStroke("LEFT"), new HorizontalAction(-(this.game.getPlayer().getXvel())));
         bindKeyWith("x.right", KeyStroke.getKeyStroke("RIGHT"), new HorizontalAction(this.game.getPlayer().getXvel()));
+        bindKeyWith("tool.space", KeyStroke.getKeyStroke("SPACE"), new SpaceAction());
+        
 	}
 	
 	protected void bindKeyWith(String name, KeyStroke keyStroke, Action action) {
@@ -52,7 +61,9 @@ public class Controller extends JPanel{
 	public void paint(Graphics g){
 		super.paint(g);
 		Graphics2D g2d = (Graphics2D) g;
-		g2d.draw(game.getPlayer().getBounds());
+		//g2d.draw(game.getPlayer().getBounds());
+		g2d.setColor(game.getPlayer().getColor());
+		g2d.fill(game.getPlayer().getBounds());
 		String salt = "Salt: ";
 		salt = salt + game.getPlayer().getSalinity();
 		g2d.drawString(salt, 10, 20);
@@ -63,6 +74,7 @@ public class Controller extends JPanel{
 				//	game.getPossibleHazards().getHazardsList().get(i).getYpos());
 			g2d.setColor(game.getPossibleHazards().getHazardsList().get(i).getColor());
 			g2d.fill(game.getPossibleHazards().getHazardsList().get(i).getBounds());
+			
 		}
 		int x=20;
 		for(int i=0; i<game.getPlayer().getLife(); i++){
@@ -70,14 +82,26 @@ public class Controller extends JPanel{
 			x+=40;
 		}
 		if(game.isGameOver()){
-			g2d.drawString("GAME OVER", 150, 150);
+			gameOver(g2d);
 		}
+	}
+	public void gameOver(Graphics2D g2d){
+		int fontSize = 60;
+		Font f = new Font("Arial Black", Font.BOLD, fontSize);
+		Font s = new Font("Comic Sans MS", Font.PLAIN, 20);
+		g2d.setFont(f);
+		g2d.setColor(Color.RED);
+		g2d.drawString("GAME OVER", (int)(FRAMEWIDTH/2.5), FRAMEHEIGHT/2);
+		game.stop();
 	}
 	
 	public void onCollision(){
 		Rectangle playerr = game.getPlayer().getBounds();
 		Rectangle hazardr;
 		Hazard collided;
+		if (game.getPlayer().getState().equals(State.JUSTHIT)){
+			
+		}else{
 		for(int i=0; i<game.getPossibleHazards().getHazardsList().size(); i++){
 			hazardr = game.getPossibleHazards().getHazardsList().get(i).getBounds();
 			collided = game.getPossibleHazards().getHazardsList().get(i);
@@ -103,7 +127,7 @@ public class Controller extends JPanel{
 							collided.setMovementType(MovementType.COLLIDEDUP);
 						}
 					}
-					else if (game.getPlayer().getState().equals(State.NEUTRAL)){
+					else{
 						System.out.println("One less life");
 						game.getPossibleHazards().getHazardsList().get(i).setXpos(900);
 						game.getPossibleHazards().getHazardsList().get(i).setYpos(900);
@@ -112,14 +136,15 @@ public class Controller extends JPanel{
 				}
 		}
 	}
+		}
 	}
 
 
 	
 	public void saltOnMovement() {
-		double xsaltindexprep = game.getPlayer().getXpos()/((double)game.FRAMEWIDTH);
+		double xsaltindexprep = game.getPlayer().getXpos()/((double)FRAMEWIDTH);
 		int xsaltindex = (int) (40*xsaltindexprep);
-		double ysaltindexprep = game.getPlayer().getYpos()/((double) game.FRAMEHEIGHT);
+		double ysaltindexprep = game.getPlayer().getYpos()/((double)FRAMEHEIGHT);
 		int ysaltindex = (int) (20*ysaltindexprep);
 		game.getPlayer().setSaldelta(game.getBoard().getTile(xsaltindex, ysaltindex));
 		System.out.print(xsaltindexprep+" ");
@@ -128,13 +153,39 @@ public class Controller extends JPanel{
 	}
 	
 	public void update(){
-		if (!game.getPlayer().getState().equals(State.NEUTRAL)){
+		if (game.getPlayer().getState().equals(State.JUSTHIT)){
 			powerupCount+=1;
+			if(game.getPlayer().getColor() == color.MAGENTA)
+				game.getPlayer().setColor(color.WHITE);
+			else
+				game.getPlayer().setColor(color.MAGENTA);
+			if (powerupCount == 50) {
+				game.getPlayer().setState(State.NEUTRAL);
+				game.getPlayer().setColor(color.MAGENTA);
+				powerupCount = 0;
+			}
+		}
+		if (game.getPlayer().getState().equals(State.INVINCIBLE)){
+			powerupCount+=1;
+			game.getPlayer().setColor(color.YELLOW);
 			if (powerupCount == 100) {
+				game.getPlayer().setColor(color.MAGENTA);
 				game.getPlayer().setState(State.NEUTRAL);
 				powerupCount = 0;
 			}
 		}
+		if (game.getPlayer().getState().equals(State.SPEEDUP)){
+			powerupCount+=1;
+			game.getPlayer().setColor(color.RED);
+			if (powerupCount == 100) {
+				game.getPlayer().setXvel(10);
+				game.getPlayer().setYvel(10);
+				game.getPlayer().setColor(color.MAGENTA);
+				game.getPlayer().setState(State.NEUTRAL);
+				powerupCount = 0;
+			}
+		}
+		
 		count++;
 		//System.out.println("Count: " + count);
 		for(int i = 0; i<game.getPossibleHazards().getHazardsList().size(); i++){
@@ -185,6 +236,37 @@ public class Controller extends JPanel{
 
     }
 	
+	public abstract class ToolAction extends AbstractAction {
+
+        public ToolAction() {
+          //game.getPlayer().SwitchTool();
+        }
+        
+        protected abstract void switchTool();
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            switchTool();
+        }
+        
+    }
+	
+    public class SpaceAction extends ToolAction {
+
+        public SpaceAction() {
+            super();
+        }
+
+        @Override
+        protected void switchTool() {
+          
+            game.getPlayer().SwitchTool();
+            System.out.println(game.getPlayer().getTool());
+            
+            //repaint();
+        }
+    }
+	
 
     public class VerticalAction extends MoveAction {
 
@@ -224,6 +306,7 @@ public class Controller extends JPanel{
         }
 
     }
+    
     
     public Game getGame() {
     	return this.game;
